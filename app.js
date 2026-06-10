@@ -318,20 +318,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /**
    * handleFormSubmit
-   * Prevents default form submission, validates all fields,
-   * and either shows errors or proceeds with mock success.
+   * Validates all fields, then sends the message via EmailJS.
+   * Replace YOUR_PUBLIC_KEY, YOUR_SERVICE_ID, YOUR_TEMPLATE_ID
+   * with values from your EmailJS dashboard.
    *
    * @param {SubmitEvent} e
    */
+
+  // ── EmailJS initialisation ──
+  // Replace 'YOUR_PUBLIC_KEY' with the Public Key from
+  // https://dashboard.emailjs.com/admin/account
+  emailjs.init({ publicKey: 'Q9eb1Tl_INctb6Lbm' });
+
   function handleFormSubmit(e) {
-    e.preventDefault(); // Never send a real HTTP request
+    e.preventDefault();
 
     // Validate every field and collect results
     const results = Object.keys(fields).map(name => validateField(name));
     const allValid = results.every(Boolean);
 
     if (!allValid) {
-      // Focus the first invalid field for accessibility
       const firstErrorName = Object.keys(fields).find(
         name => fields[name].classList.contains('is-error')
       );
@@ -339,29 +345,36 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // ── Mock submission: simulate async network request ──
-    // In production, replace this with a fetch() to your backend.
     setSubmitLoading(true);
 
-    const mockPayload = {
-      name:    fields.name.value.trim(),
-      email:   fields.email.value.trim(),
-      subject: fields.subject.value.trim(),
-      message: fields.message.value.trim(),
-    };
-
-    // Log the captured form data to the console (mock success state)
-    console.group('📨 Contact Form — Mock Submission');
-    console.log('Status:  SUCCESS (mock)');
-    console.log('Payload:', mockPayload);
-    console.log('Note:    Connect this to your backend API or email service (e.g. EmailJS, Resend, Formspree).');
-    console.groupEnd();
-
-    // Simulate a 1.2s network delay then show success
-    setTimeout(() => {
+    // EmailJS send — replace service & template IDs below
+    // Service ID:  https://dashboard.emailjs.com/admin
+    // Template ID: https://dashboard.emailjs.com/admin/templates
+    emailjs.send(
+      'service_5hchpb7',    // e.g. 'service_abc123'
+      'template_ypbcgdx',   // e.g. 'template_xyz789'
+      {
+        from_name:    fields.name.value.trim(),
+        from_email:   fields.email.value.trim(),
+        subject:      fields.subject.value.trim(),
+        message:      fields.message.value.trim(),
+        to_email:     'davchevfilip31@gmail.com',
+      }
+    )
+    .then(() => {
       setSubmitLoading(false);
       showFormSuccess();
-    }, 1200);
+    })
+    .catch((error) => {
+      setSubmitLoading(false);
+      console.error('EmailJS error:', error);
+      // Show a user-facing error on the button label
+      const label = submitBtn.querySelector('.btn-label');
+      label.textContent = 'Failed — try again';
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '';
+      setTimeout(() => { label.textContent = 'Send Message'; }, 3000);
+    });
   }
 
   /**
