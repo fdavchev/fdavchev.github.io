@@ -350,16 +350,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // EmailJS send — replace service & template IDs below
     // Service ID:  https://dashboard.emailjs.com/admin
     // Template ID: https://dashboard.emailjs.com/admin/templates
-    emailjs.send(
-      'service_5hchpb7',    // e.g. 'service_abc123'
-      'template_7glnjrk',   // e.g. 'template_xyz789'
-      {
-        from_name:    fields.name.value.trim(),
-        from_email:   fields.email.value.trim(),
-        subject:      fields.subject.value.trim(),
-        message:      fields.message.value.trim(),
-      }
-    )
+  emailjs.send(
+  'service_5hchpb7',
+  'template_7glnjrk',
+     {
+       to_email:     'davchevfilip31@gmail.com',
+       from_name:    fields.name.value.trim(),
+       from_email:   fields.email.value.trim(),
+       subject:      fields.subject.value.trim(),
+       message:      fields.message.value.trim(),
+     }
+   )
     .then(() => {
       setSubmitLoading(false);
       showFormSuccess();
