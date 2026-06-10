@@ -358,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
         from_email:   fields.email.value.trim(),
         subject:      fields.subject.value.trim(),
         message:      fields.message.value.trim(),
-     // to_email:     'davchevfilip31@gmail.com',
       }
     )
     .then(() => {
