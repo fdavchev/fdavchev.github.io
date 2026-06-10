@@ -352,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Template ID: https://dashboard.emailjs.com/admin/templates
     emailjs.send(
       'service_5hchpb7',    // e.g. 'service_abc123'
-      'template_ypbcgdx',   // e.g. 'template_xyz789'
+      'template_7glnjrk',   // e.g. 'template_xyz789'
       {
         from_name:    fields.name.value.trim(),
         from_email:   fields.email.value.trim(),
