@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ──────────────────────────────────────────────────────────
-  // 4. CONTACT FORM — validation + mock submission
+  // 4. CONTACT FORM — validation + submission via EmailJS
   //    Validates all fields on submit using a clean pattern:
   //    each field has its own validator function returning
   //    an error string or null. Errors display inline.
@@ -319,8 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * handleFormSubmit
    * Validates all fields, then sends the message via EmailJS.
-   * Replace YOUR_PUBLIC_KEY, YOUR_SERVICE_ID, YOUR_TEMPLATE_ID
-   * with values from your EmailJS dashboard.
+   * The recipient email is configured directly in the EmailJS template.
    *
    * @param {SubmitEvent} e
    */
@@ -350,17 +349,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // EmailJS send — replace service & template IDs below
     // Service ID:  https://dashboard.emailjs.com/admin
     // Template ID: https://dashboard.emailjs.com/admin/templates
-  emailjs.send(
-  'service_5hchpb7',
-  'template_7glnjrk',
-     {
-       to_email:     'davchevfilip31@gmail.com',
-       from_name:    fields.name.value.trim(),
-       from_email:   fields.email.value.trim(),
-       subject:      fields.subject.value.trim(),
-       message:      fields.message.value.trim(),
-     }
-   )
+    emailjs.send(
+      'service_5hchpb7',
+      'template_7glnjrk',
+      {
+        from_name:    fields.name.value.trim(),
+        from_email:   fields.email.value.trim(),
+        subject:      fields.subject.value.trim(),
+        message:      fields.message.value.trim(),
+      }
+    )
     .then(() => {
       setSubmitLoading(false);
       showFormSuccess();
