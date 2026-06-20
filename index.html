@@ -1316,16 +1316,15 @@ footer{
           </div>
           <div class="form-body">
             <form id="contactForm" novalidate>
-              <input type="hidden" name="to_email" value="davchevfilip31@gmail.com"/>
               <div class="form-row">
                 <div class="fg">
                   <label class="fl" for="name">Name</label>
-                  <input class="fi" type="text" id="name" name="from_name" data-field="name" placeholder="Your name" autocomplete="name"/>
+                  <input class="fi" type="text" id="name" name="name" placeholder="Your name" autocomplete="name"/>
                   <span class="fe" id="nameError"></span>
                 </div>
                 <div class="fg">
                   <label class="fl" for="email">Email</label>
-                  <input class="fi" type="email" id="email" name="reply_to" data-field="email" placeholder="you@example.com" autocomplete="email"/>
+                  <input class="fi" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"/>
                   <span class="fe" id="emailError"></span>
                 </div>
               </div>
@@ -1440,55 +1439,66 @@ const yr = document.getElementById('footerYear');
 if(yr) yr.textContent = new Date().getFullYear();
 
 /* ─── EMAILJS ─── */
-  // ── EmailJS initialisation ──
-  // Replace 'YOUR_PUBLIC_KEY' with the Public Key from
-  // https://dashboard.emailjs.com/admin/account
-  emailjs.init({ publicKey: 'Q9eb1Tl_INctb6Lbm' });
+emailjs.init({publicKey: 'Q9eb1Tl_INctb6Lbm'});
 
-  function handleFormSubmit(e) {
-    e.preventDefault();
+const form    = document.getElementById('contactForm');
+const btnEl   = document.getElementById('submitBtn');
+const btnLbl  = document.getElementById('btnLabel');
+const successEl = document.getElementById('formSuccess');
 
-    // Validate every field and collect results
-    const results = Object.keys(fields).map(name => validateField(name));
-    const allValid = results.every(Boolean);
+const fields = {
+  name:    document.getElementById('name'),
+  email:   document.getElementById('email'),
+  subject: document.getElementById('subject'),
+  message: document.getElementById('message'),
+};
+const errEls = {
+  name:    document.getElementById('nameError'),
+  email:   document.getElementById('emailError'),
+  subject: document.getElementById('subjectError'),
+  message: document.getElementById('messageError'),
+};
+const validators = {
+  name:    v => !v.trim() ? 'Name is required.' : v.trim().length < 2 ? 'Minimum 2 characters.' : null,
+  email:   v => !v.trim() ? 'Email is required.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Enter a valid email.' : null,
+  subject: v => !v.trim() ? 'Subject is required.' : v.trim().length < 3 ? 'Minimum 3 characters.' : null,
+  message: v => !v.trim() ? 'Message is required.' : v.trim().length < 10 ? 'Minimum 10 characters.' : null,
+};
 
-    if (!allValid) {
-      const firstErrorName = Object.keys(fields).find(
-        name => fields[name].classList.contains('is-error')
-      );
-      if (firstErrorName) fields[firstErrorName].focus();
-      return;
-    }
+function vField(n) {
+  const err = validators[n](fields[n].value);
+  fields[n].classList.toggle('err', !!err);
+  fields[n].classList.toggle('ok', !err);
+  errEls[n].textContent = err || '';
+  return !err;
+}
 
-    setSubmitLoading(true);
+Object.keys(fields).forEach(n => {
+  fields[n].addEventListener('blur', () => { if(fields[n].value.trim() || fields[n].classList.contains('err')) vField(n); });
+  fields[n].addEventListener('input', () => { if(fields[n].classList.contains('err')) vField(n); });
+});
 
-    // EmailJS send — replace service & template IDs below
-    // Service ID:  https://dashboard.emailjs.com/admin
-    // Template ID: https://dashboard.emailjs.com/admin/templates
-    emailjs.send(
-      'service_5hchpb7',    // e.g. 'service_abc123'
-      'template_7glnjrk',   // e.g. 'template_xyz789'
-      {
-        from_name:    fields.name.value.trim(),
-        from_email:   fields.email.value.trim(),
-        subject:      fields.subject.value.trim(),
-        message:      fields.message.value.trim(),
-        to_email:     'davchevfilip31@gmail.com',
-      }
-    )
-    .then(() => {
-      setSubmitLoading(false);
-      showFormSuccess();
-    })
-    .catch((error) => {
-      setSubmitLoading(false);
-      console.error('EmailJS error:', error);
-      // Show a user-facing error on the button label
-      const label = submitBtn.querySelector('.btn-label');
-      label.textContent = 'Failed — try again';
-      submitBtn.disabled = false;
-      submitBtn.style.opacity = '';
-      setTimeout(() => { label.textContent = 'Send Message'; }, 3000);
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const valid = Object.keys(fields).map(n => vField(n)).every(Boolean);
+  if(!valid) return;
+  btnEl.disabled = true;
+  btnLbl.textContent = 'Sending…';
+
+  emailjs.send('service_5hchpb7', 'template_7glnjrk', {
+    from_name:  fields.name.value.trim(),
+    from_email: fields.email.value.trim(),
+    subject:    fields.subject.value.trim(),
+    message:    fields.message.value.trim(),
+    to_email:   'davchevfilip31@gmail.com',
+  }).then(() => {
+    btnEl.style.display = 'none';
+    successEl.classList.add('show');
+  }).catch((error) => {
+    console.error('EmailJS error:', error);
+    btnEl.disabled = false;
+    btnLbl.textContent = 'Failed — try again';
+    setTimeout(() => { btnLbl.textContent = 'Send Message'; }, 3000);
   });
 });
 
