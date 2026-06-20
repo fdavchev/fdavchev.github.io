@@ -1440,76 +1440,55 @@ const yr = document.getElementById('footerYear');
 if(yr) yr.textContent = new Date().getFullYear();
 
 /* ─── EMAILJS ─── */
-emailjs.init({publicKey: 'Q9eb1Tl_INctb6Lbm'});
+  // ── EmailJS initialisation ──
+  // Replace 'YOUR_PUBLIC_KEY' with the Public Key from
+  // https://dashboard.emailjs.com/admin/account
+  emailjs.init({ publicKey: 'Q9eb1Tl_INctb6Lbm' });
 
-const form    = document.getElementById('contactForm');
-const btnEl   = document.getElementById('submitBtn');
-const btnLbl  = document.getElementById('btnLabel');
-const successEl = document.getElementById('formSuccess');
+  function handleFormSubmit(e) {
+    e.preventDefault();
 
-const fields = {
-  name:    document.querySelector('[data-field="name"]'),
-  email:   document.querySelector('[data-field="email"]'),
-  subject: document.getElementById('subject'),
-  message: document.getElementById('message'),
-};
-const errEls = {
-  name:    document.getElementById('nameError'),
-  email:   document.getElementById('emailError'),
-  subject: document.getElementById('subjectError'),
-  message: document.getElementById('messageError'),
-};
-const validators = {
-  name:    v => !v.trim() ? 'Name is required.' : v.trim().length < 2 ? 'Minimum 2 characters.' : null,
-  email:   v => !v.trim() ? 'Email is required.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Enter a valid email.' : null,
-  subject: v => !v.trim() ? 'Subject is required.' : v.trim().length < 3 ? 'Minimum 3 characters.' : null,
-  message: v => !v.trim() ? 'Message is required.' : v.trim().length < 10 ? 'Minimum 10 characters.' : null,
-};
+    // Validate every field and collect results
+    const results = Object.keys(fields).map(name => validateField(name));
+    const allValid = results.every(Boolean);
 
-function vField(n) {
-  const err = validators[n](fields[n].value);
-  fields[n].classList.toggle('err', !!err);
-  fields[n].classList.toggle('ok', !err);
-  errEls[n].textContent = err || '';
-  return !err;
-}
+    if (!allValid) {
+      const firstErrorName = Object.keys(fields).find(
+        name => fields[name].classList.contains('is-error')
+      );
+      if (firstErrorName) fields[firstErrorName].focus();
+      return;
+    }
 
-Object.keys(fields).forEach(n => {
-  fields[n].addEventListener('blur', () => { if(fields[n].value.trim() || fields[n].classList.contains('err')) vField(n); });
-  fields[n].addEventListener('input', () => { if(fields[n].classList.contains('err')) vField(n); });
-});
+    setSubmitLoading(true);
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const valid = Object.keys(fields).map(n => vField(n)).every(Boolean);
-  if(!valid) return;
-  btnEl.disabled = true;
-  btnLbl.textContent = 'Sending…';
-
-  const nameVal    = fields.name.value.trim();
-  const emailVal   = fields.email.value.trim();
-  const subjectVal = fields.subject.value.trim();
-  const messageVal = fields.message.value.trim();
-
-  emailjs.send('service_5hchpb7', 'template_7glnjrk', {
-    // common name variants
-    name: nameVal, from_name: nameVal, user_name: nameVal,
-    // common email variants
-    email: emailVal, from_email: emailVal, reply_to: emailVal, user_email: emailVal,
-    // subject / message
-    subject: subjectVal, title: subjectVal,
-    message: messageVal, user_message: messageVal,
-    // recipient
-    to_email: 'davchevfilip31@gmail.com', to_name: 'Filip',
-  }).then(() => {
-    btnEl.style.display = 'none';
-    successEl.classList.add('show');
-  }).catch((error) => {
-    console.error('EmailJS send failed:', error);
-    btnEl.disabled = false;
-    const reason = (error && (error.text || error.message)) ? (error.text || error.message) : ('status ' + (error && error.status));
-    btnLbl.textContent = 'Failed — ' + reason;
-    setTimeout(() => { btnLbl.textContent = 'Send Message'; }, 5000);
+    // EmailJS send — replace service & template IDs below
+    // Service ID:  https://dashboard.emailjs.com/admin
+    // Template ID: https://dashboard.emailjs.com/admin/templates
+    emailjs.send(
+      'service_5hchpb7',    // e.g. 'service_abc123'
+      'template_7glnjrk',   // e.g. 'template_xyz789'
+      {
+        from_name:    fields.name.value.trim(),
+        from_email:   fields.email.value.trim(),
+        subject:      fields.subject.value.trim(),
+        message:      fields.message.value.trim(),
+        to_email:     'davchevfilip31@gmail.com',
+      }
+    )
+    .then(() => {
+      setSubmitLoading(false);
+      showFormSuccess();
+    })
+    .catch((error) => {
+      setSubmitLoading(false);
+      console.error('EmailJS error:', error);
+      // Show a user-facing error on the button label
+      const label = submitBtn.querySelector('.btn-label');
+      label.textContent = 'Failed — try again';
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '';
+      setTimeout(() => { label.textContent = 'Send Message'; }, 3000);
   });
 });
 
