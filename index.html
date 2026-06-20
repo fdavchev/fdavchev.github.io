@@ -1316,15 +1316,16 @@ footer{
           </div>
           <div class="form-body">
             <form id="contactForm" novalidate>
+              <input type="hidden" name="to_email" value="davchevfilip31@gmail.com"/>
               <div class="form-row">
                 <div class="fg">
                   <label class="fl" for="name">Name</label>
-                  <input class="fi" type="text" id="name" name="name" placeholder="Your name" autocomplete="name"/>
+                  <input class="fi" type="text" id="name" name="from_name" data-field="name" placeholder="Your name" autocomplete="name"/>
                   <span class="fe" id="nameError"></span>
                 </div>
                 <div class="fg">
                   <label class="fl" for="email">Email</label>
-                  <input class="fi" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"/>
+                  <input class="fi" type="email" id="email" name="reply_to" data-field="email" placeholder="you@example.com" autocomplete="email"/>
                   <span class="fe" id="emailError"></span>
                 </div>
               </div>
@@ -1447,8 +1448,8 @@ const btnLbl  = document.getElementById('btnLabel');
 const successEl = document.getElementById('formSuccess');
 
 const fields = {
-  name:    document.getElementById('name'),
-  email:   document.getElementById('email'),
+  name:    document.querySelector('[data-field="name"]'),
+  email:   document.querySelector('[data-field="email"]'),
   subject: document.getElementById('subject'),
   message: document.getElementById('message'),
 };
@@ -1484,19 +1485,31 @@ form.addEventListener('submit', e => {
   if(!valid) return;
   btnEl.disabled = true;
   btnLbl.textContent = 'Sending…';
+
+  const nameVal    = fields.name.value.trim();
+  const emailVal   = fields.email.value.trim();
+  const subjectVal = fields.subject.value.trim();
+  const messageVal = fields.message.value.trim();
+
   emailjs.send('service_5hchpb7', 'template_ypbcgdx', {
-    from_name:  fields.name.value.trim(),
-    from_email: fields.email.value.trim(),
-    subject:    fields.subject.value.trim(),
-    message:    fields.message.value.trim(),
-    to_email:   'davchevfilip31@gmail.com',
+    // common name variants
+    name: nameVal, from_name: nameVal, user_name: nameVal,
+    // common email variants
+    email: emailVal, from_email: emailVal, reply_to: emailVal, user_email: emailVal,
+    // subject / message
+    subject: subjectVal, title: subjectVal,
+    message: messageVal, user_message: messageVal,
+    // recipient
+    to_email: 'davchevfilip31@gmail.com', to_name: 'Filip',
   }).then(() => {
     btnEl.style.display = 'none';
     successEl.classList.add('show');
-  }).catch(() => {
+  }).catch((error) => {
+    console.error('EmailJS send failed:', error);
     btnEl.disabled = false;
-    btnLbl.textContent = 'Failed — try again';
-    setTimeout(() => { btnLbl.textContent = 'Send Message'; }, 3000);
+    const reason = (error && (error.text || error.message)) ? (error.text || error.message) : ('status ' + (error && error.status));
+    btnLbl.textContent = 'Failed — ' + reason;
+    setTimeout(() => { btnLbl.textContent = 'Send Message'; }, 5000);
   });
 });
 
