@@ -14,9 +14,13 @@
 <meta property="og:url" content="https://fdavchev.github.io/"/>
 <meta property="og:title" content="Filip Davchev — Software Engineer &amp; AI Builder"/>
 <meta property="og:description" content="Software engineering intern building with Flutter, C#/.NET and Azure DevOps — plus local-LLM and RAG side projects."/>
-<meta name="twitter:card" content="summary"/>
+<meta property="og:image" content="https://fdavchev.github.io/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Filip Davchev — Software Engineer &amp; AI Builder"/>
 <meta name="twitter:description" content="Software engineering intern building with Flutter, C#/.NET and Azure DevOps — plus local-LLM and RAG side projects."/>
+<meta name="twitter:image" content="https://fdavchev.github.io/og-image.png"/>
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230e0d0b'/%3E%3Ctext x='50%25' y='57%25' text-anchor='middle' font-family='Georgia,serif' font-size='34' fill='%23edb94a'%3Efd%3C/text%3E%3C/svg%3E"/>
 
@@ -34,7 +38,9 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'"/>
+<noscript><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet"/></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -951,7 +957,7 @@ footer{
   <div class="hero-inner">
     <div class="hero-left">
       <p class="hero-status"><span class="dot-pulse"></span> Open to junior &amp; graduate roles</p>
-      <p class="hero-eyebrow">Software Engineering Intern</p>
+      <p class="hero-eyebrow">Software Engineer &amp; AI Builder</p>
 
       <h1 class="hero-name">
         <span class="hn-line"><span>Filip</span></span>
@@ -1151,7 +1157,7 @@ footer{
     <div class="s-head-block">
       <div class="s-label rv">Selected Projects</div>
       <h2 class="s-heading rv d1">Things I've built.</h2>
-      <p class="s-sub rv d1">Six projects across mobile, full-stack web, automation and applied machine learning — one still in progress.</p>
+      <p class="s-sub rv d1">Six projects across mobile, full-stack web, automation and applied machine learning.</p>
     </div>
 
     <div class="proj-explorer rv d2">
@@ -1427,17 +1433,16 @@ const COVERS = {
 
 const PROJECTS = [
   {
-    id:'bookscanner', name:'BookScanner', ext:'.ts', lang:'ts', wip:true,
+    id:'bookscanner', name:'BookScanner', ext:'.ts', lang:'ts',
     cover:'scan', coverCap:'Scan → parse → catalogue',
     meta:[
       ['project','str','"Book Scanner"'],
       ['type','kw','Web Application'],
-      ['language','str','"TypeScript"'],
-      ['status','num','In progress ●']
+      ['language','str','"TypeScript"']
     ],
-    desc:'Currently in development. A <em>TypeScript web app for scanning and cataloguing books</em> — built as a browser-first project, with the scanning and lookup flow handled client-side. Repo is <em>77% TypeScript</em>, with a small JS, CSS and HTML surface around it.<br/><br/><span style="opacity:0.7;font-style:italic;"></span>',
+    desc:'A <em>TypeScript web app for scanning and cataloguing books</em> — built as a browser-first project, with the scanning and lookup flow handled client-side. Repo is <em>77% TypeScript</em>, with a small JS, CSS and HTML surface around it.',
     tags:['TypeScript','JavaScript','CSS','HTML'],
-    links:[['https://github.com/fdavchev','View on GitHub']]
+    links:[['https://github.com/fdavchev/Book-Scanner','View on GitHub']]
   },
   {
     id:'documind', name:'DocuMind-AI', ext:'.py', lang:'py',
@@ -1608,7 +1613,6 @@ document.querySelectorAll('.proj-file[data-proj], .proj-tab[data-proj]').forEach
   });
 });
 
-/* deep link: index-refined.html#projects=bookscanner */
 const projHash = (location.hash.match(/^#projects=(\w+)$/) || [])[1];
 if(projHash && projIds.indexOf(projHash) !== -1) switchProj(projHash);
 
