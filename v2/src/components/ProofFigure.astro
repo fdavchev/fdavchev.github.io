@@ -1,0 +1,61 @@
+---
+/**
+ * A reproduced screenshot inside trim marks, with its caption and a link to the
+ * full-size original so a reader can check the detail for themselves.
+ */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  caption: string;
+  /** The `sizes` attribute: how wide this figure renders at each breakpoint. */
+  sizes: string;
+  priority?: boolean;
+}
+
+const { src, alt, caption, sizes, priority = false } = Astro.props;
+const isPortrait = src.height > src.width;
+const widths = [480, 960, 1440].filter((width) => width < src.width).concat(src.width);
+---
+
+<figure class:list={['proof-figure', { 'proof-figure--portrait': isPortrait }]}>
+  <div class="trim-marks">
+    <Image src={src} alt={alt} widths={widths} sizes={sizes} priority={priority} />
+  </div>
+  <figcaption>
+    {caption}
+    <a class="proof-figure__full" href={src.src}>Full size</a>
+  </figcaption>
+</figure>
+
+<style>
+  .proof-figure {
+    min-width: 0;
+  }
+
+  .proof-figure--portrait {
+    max-width: 24rem;
+  }
+
+  .proof-figure img {
+    width: 100%;
+  }
+
+  figcaption {
+    margin-top: var(--grid);
+    max-width: 60ch;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    text-wrap: pretty;
+  }
+
+  .proof-figure__full {
+    margin-left: var(--grid);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+</style>

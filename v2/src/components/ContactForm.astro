@@ -1,0 +1,276 @@
+---
+/**
+ * Contact form, sent through the same EmailJS service, template and key as v1
+ * (index.html at the repo root), with the same fields, honeypot and rules.
+ */
+const fields = [
+  { name: 'name', label: 'Name', type: 'text', autocomplete: 'name' },
+  { name: 'email', label: 'Email', type: 'email', autocomplete: 'email' },
+  { name: 'subject', label: 'Subject', type: 'text', autocomplete: 'off' },
+] as const;
+---
+
+<script is:inline src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+
+<form class="contact-form" data-contact-form novalidate>
+  <input class="contact-form__trap" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+  {
+    fields.map((field) => (
+      <div class="contact-form__field">
+        <label for={`contact-${field.name}`} class="type-label">
+          {field.label}
+        </label>
+        <input
+          id={`contact-${field.name}`}
+          name={field.name}
+          type={field.type}
+          autocomplete={field.autocomplete}
+          aria-describedby={`contact-${field.name}-error`}
+        />
+        <p id={`contact-${field.name}-error`} class="contact-form__error" data-error-for={field.name}></p>
+      </div>
+    ))
+  }
+  <div class="contact-form__field">
+    <label for="contact-message" class="type-label">Message</label>
+    <textarea id="contact-message" name="message" rows="6" aria-describedby="contact-message-error"></textarea>
+    <p id="contact-message-error" class="contact-form__error" data-error-for="message"></p>
+  </div>
+  <div class="contact-form__actions">
+    <button type="submit" class="button button--primary" data-submit>Send message</button>
+  </div>
+  <p class="contact-form__status" data-status role="status" aria-live="polite"></p>
+</form>
+
+<script>
+  type FieldName = 'name' | 'email' | 'subject' | 'message';
+
+  interface EmailJS {
+    send(
+      serviceId: string,
+      templateId: string,
+      params: Record<string, string>,
+      options: { publicKey: string },
+    ): Promise<unknown>;
+  }
+
+  const emailService = {
+    serviceId: 'service_5hchpb7',
+    templateId: 'template_ypbcgdx',
+    publicKey: 'Q9eb1Tl_INctb6Lbm',
+    recipient: 'davchevfilip31@gmail.com',
+  };
+
+  const sendLabel = 'Send message';
+
+  // Same rules as v1's contact form.
+  const validators: Record<FieldName, (value: string) => string | null> = {
+    name: (value) => (!value.trim() ? 'Name is required.' : value.trim().length < 2 ? 'Minimum 2 characters.' : null),
+    email: (value) =>
+      !value.trim() ? 'Email is required.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Enter a valid email.' : null,
+    subject: (value) =>
+      !value.trim() ? 'Subject is required.' : value.trim().length < 3 ? 'Minimum 3 characters.' : null,
+    message: (value) =>
+      !value.trim() ? 'Message is required.' : value.trim().length < 10 ? 'Minimum 10 characters.' : null,
+  };
+  const fieldNames = Object.keys(validators) as FieldName[];
+
+  function setUpContactForm() {
+    const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+    if (!form) return;
+    const submitButton = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const control = (name: FieldName) => form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement;
+    const errorText = (name: FieldName) => form.querySelector<HTMLElement>(`[data-error-for="${name}"]`)!;
+
+    function validate(name: FieldName): boolean {
+      const error = validators[name](control(name).value);
+      control(name).setAttribute('aria-invalid', error ? 'true' : 'false');
+      errorText(name).textContent = error ?? '';
+      return !error;
+    }
+
+    for (const name of fieldNames) {
+      control(name).addEventListener('blur', () => {
+        if (control(name).value.trim() || control(name).getAttribute('aria-invalid') === 'true') validate(name);
+      });
+      control(name).addEventListener('input', () => {
+        if (control(name).getAttribute('aria-invalid') === 'true') validate(name);
+      });
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const trap = form.elements.namedItem('website') as HTMLInputElement;
+      if (trap.value) return;
+
+      const results = fieldNames.map((name) => validate(name));
+      const firstInvalid = fieldNames.find((_, index) => !results[index]);
+      if (firstInvalid) {
+        control(firstInvalid).focus();
+        return;
+      }
+
+      const emailjs = (window as Window & { emailjs?: EmailJS }).emailjs;
+      if (!emailjs) {
+        console.error('Contact form: the EmailJS script did not load, so the message cannot be sent.');
+        submitButton.textContent = 'Mail service unavailable';
+        status.dataset.tone = 'error';
+        status.textContent = `The mail service didn’t load. Email ${emailService.recipient} directly instead.`;
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending…';
+      status.textContent = '';
+      emailjs
+        .send(
+          emailService.serviceId,
+          emailService.templateId,
+          {
+            from_name: control('name').value.trim(),
+            from_email: control('email').value.trim(),
+            subject: control('subject').value.trim(),
+            message: control('message').value.trim(),
+            to_email: emailService.recipient,
+          },
+          { publicKey: emailService.publicKey },
+        )
+        .then(() => {
+          submitButton.hidden = true;
+          status.dataset.tone = 'success';
+          status.textContent = 'Message sent. I’ll get back to you soon.';
+        })
+        .catch((error: unknown) => {
+          console.error('Contact form: EmailJS rejected the send.', error);
+          submitButton.disabled = false;
+          submitButton.textContent = 'Failed, try again';
+          status.dataset.tone = 'error';
+          status.textContent = `The message didn’t send. Try again, or email ${emailService.recipient}.`;
+          setTimeout(() => {
+            submitButton.textContent = sendLabel;
+          }, 3000);
+        });
+    });
+  }
+
+  // Runs on the first load and again after every ClientRouter navigation.
+  document.addEventListener('astro:page-load', setUpContactForm);
+</script>
+
+<style>
+  .contact-form {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .contact-form__trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .contact-form__field {
+    display: grid;
+    gap: var(--grid);
+  }
+
+  .contact-form__field .type-label {
+    color: var(--ink-soft);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: var(--grid) var(--space-1);
+    border: 1px solid var(--ink-muted);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-body);
+    /* 16px keeps iOS from zooming into the field on focus. */
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  input {
+    min-height: 3rem;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    border-color: var(--ink);
+  }
+
+  [aria-invalid='true'] {
+    border-color: var(--red-ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    input,
+    textarea {
+      transition: border-color var(--dur-feedback) linear;
+    }
+
+    /* An error marks the field at once, like a stamp; only the focus change eases. */
+    [aria-invalid='true'] {
+      transition: none;
+    }
+  }
+
+  .contact-form__error {
+    min-height: 1.5rem;
+    margin: 0;
+    color: var(--red-ink);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+  }
+
+  .contact-form__actions {
+    display: flex;
+  }
+
+  .contact-form__status {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+  }
+
+  .contact-form__status:empty {
+    display: none;
+  }
+
+  .contact-form__status[data-tone='error'] {
+    color: var(--red-ink);
+  }
+
+  .contact-form__status[data-tone='success'] {
+    font-weight: 500;
+  }
+
+  /*
+    A message arrives the way a stamp does. :not(:empty) plays it only when a
+    message appears, not each time re-validation changes the wording.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    .contact-form__error:not(:empty),
+    .contact-form__status:not(:empty) {
+      animation: var(--motion-settle);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-form__error:not(:empty),
+    .contact-form__status:not(:empty) {
+      animation: var(--motion-appear);
+    }
+  }
+</style>

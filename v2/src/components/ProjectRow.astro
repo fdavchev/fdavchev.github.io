@@ -1,0 +1,122 @@
+---
+/** One stamped row of the work list: title, thesis, stack, its line of evidence, and its state. */
+import StampBadge from './StampBadge.astro';
+import { projectHref, stateLabel, type Project } from '../lib/projects';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { title, thesis, state, stateNote, stack, proofLine } = project.data;
+---
+
+<li class="project-row">
+  <a class="project-row__link" href={projectHref(project)}>
+    <div class="project-row__main">
+      <h3 class="project-row__title type-display-4">
+        <span class="project-row__title-text underline-reveal">{title}</span>
+      </h3>
+      <p class="project-row__thesis">{thesis}</p>
+    </div>
+    <div class="project-row__meta">
+      <p class="type-data">{stack.join(', ')}</p>
+      <p class="project-row__proof type-data">{proofLine}</p>
+    </div>
+    <div class="project-row__state">
+      <StampBadge label={stateLabel[state]} note={stateNote} open={state === 'in-progress'} />
+    </div>
+  </a>
+</li>
+
+<style>
+  .project-row__link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 15rem) 10rem;
+    gap: var(--space-1) var(--space-4);
+    align-items: start;
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--rule);
+    /* The whole row is the link, but only the title carries the line. */
+    background: none;
+    text-decoration: none;
+  }
+
+  /* An inline span, so the line runs under the words rather than the full width of the <h3>. */
+  .project-row__title-text {
+    --line-rest: 0px;
+  }
+
+  .project-row__thesis {
+    margin-top: var(--grid);
+    max-width: 60ch;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+
+  .project-row__meta {
+    padding-top: var(--grid);
+  }
+
+  .project-row__proof {
+    margin-top: var(--grid);
+    color: var(--ink);
+  }
+
+  .project-row__state {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--space-1);
+  }
+
+  /* A proofreader's underline under the title marks the row being pointed at. */
+  @media (hover: hover) and (pointer: fine) {
+    .project-row__link:hover .project-row__title-text {
+      background-size: 100% var(--line-mark), 100% var(--line-rest);
+    }
+  }
+
+  .project-row__link:focus-visible .project-row__title-text {
+    background-size: 100% var(--line-mark), 100% var(--line-rest);
+  }
+
+  @media (max-width: 56rem) {
+    .project-row__link {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-1) var(--space-2);
+    }
+
+    .project-row__main {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .project-row__state {
+      grid-column: 2;
+      grid-row: 1;
+      padding-top: var(--grid);
+    }
+
+    .project-row__meta {
+      grid-column: 1 / -1;
+      padding-top: 0;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .project-row__link {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .project-row__state {
+      grid-column: 1;
+      grid-row: 2;
+      justify-content: flex-start;
+      padding-top: 0;
+    }
+
+    .project-row__meta {
+      grid-row: 3;
+    }
+  }
+</style>

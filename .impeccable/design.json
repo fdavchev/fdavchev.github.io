@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-27T00:00:00Z",
+  "title": "Design System: The Proof Sheet",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Bone Paper", "canonical": "light-dark(#edeae2, #17181a)" },
+      "ink": { "role": "neutral", "displayName": "Proof Ink", "canonical": "light-dark(#17181a, #edeae2)" },
+      "ink-soft": { "role": "neutral", "displayName": "Soft Ink", "canonical": "light-dark(#3f4044, #c9c6be)" },
+      "ink-muted": { "role": "neutral", "displayName": "Muted Ink", "canonical": "light-dark(#5e5f63, #a3a098)" },
+      "rule": { "role": "neutral", "displayName": "Rule", "canonical": "light-dark(rgb(23 24 26 / 0.24), rgb(237 234 226 / 0.26))" },
+      "wash": { "role": "neutral", "displayName": "Wash", "canonical": "light-dark(rgb(23 24 26 / 0.05), rgb(237 234 226 / 0.06))" },
+      "correction-ink": { "role": "primary", "displayName": "Correction Ink", "canonical": "light-dark(#d6291a, #e23a26)" },
+      "correction-ink-text": { "role": "primary", "displayName": "Correction Ink (small-text weight)", "canonical": "light-dark(#b81f12, #f0503a)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero name/role line and section/case-study headings, in Libre Caslon Display." },
+      "body": { "displayName": "Body", "purpose": "Running prose, in IBM Plex Sans." },
+      "label": { "displayName": "Label", "purpose": "Field labels, kickers, table headers, stamp brackets, in IBM Plex Mono." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "The stamp badge's arrival settle — the system's one authored motion." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "30rem" },
+      { "name": "nav-stack", "value": "40rem" },
+      { "name": "md", "value": "56rem" },
+      { "name": "specimen-margin", "value": "84rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink-filled square button, mono label, level with the secondary button.",
+      "html": "<button class=\"ds-btn-primary\">Read the proof</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding-inline: 1.5rem; border: 1px solid #17181a; background: #17181a; color: #edeae2; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02em; cursor: pointer; border-radius: 0; } .ds-btn-primary:hover { background: #3f4044; border-color: #3f4044; } .ds-btn-primary:active { translate: 0 1px; } .ds-btn-primary:focus-visible { outline: 2px solid #d6291a; outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Transparent outlined button, same height and type as the primary.",
+      "html": "<button class=\"ds-btn-secondary\">Get in touch</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 3rem; padding-inline: 1.5rem; border: 1px solid #17181a; background: transparent; color: #17181a; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02em; cursor: pointer; border-radius: 0; } .ds-btn-secondary:hover { background: rgb(23 24 26 / 0.05); } .ds-btn-secondary:active { translate: 0 1px; }"
+    },
+    {
+      "name": "Stamp Badge — Shipped",
+      "kind": "custom",
+      "refersTo": "stamp-shipped",
+      "description": "Bracketed state mark for a shipped project row.",
+      "html": "<span class=\"ds-stamp\"><span class=\"ds-stamp__bracket\">[</span><span class=\"ds-stamp__label\">Shipped</span><span class=\"ds-stamp__bracket\">]</span></span>",
+      "css": ".ds-stamp { display: inline-flex; align-items: baseline; column-gap: 0.5em; } .ds-stamp__bracket { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; color: #5e5f63; } .ds-stamp__label { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #b81f12; }"
+    },
+    {
+      "name": "Stamp Badge — In Progress",
+      "kind": "custom",
+      "refersTo": "stamp-in-progress",
+      "description": "Quieter, italic bracketed mark for unfinished work — intentionally lower-contrast than Shipped.",
+      "html": "<span class=\"ds-stamp ds-stamp--open\"><span class=\"ds-stamp__bracket\">[</span><span class=\"ds-stamp__label\">In progress</span><span class=\"ds-stamp__bracket\">]</span></span>",
+      "css": ".ds-stamp--open .ds-stamp__label { color: #5e5f63; font-style: italic; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Transparent, square-cornered field; darkens border on focus, reddens on error.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Name\" />",
+      "css": ".ds-input { width: 100%; min-height: 3rem; padding: 0.375rem 0.75rem; border: 1px solid #5e5f63; border-radius: 0; background: transparent; color: #17181a; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 1rem; } .ds-input:focus-visible { border-color: #17181a; outline: none; } .ds-input[aria-invalid='true'] { border-color: #b81f12; }"
+    },
+    {
+      "name": "Section Navigation Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Mono nav link; underlines in Correction Ink on hover/focus, no color change on the text.",
+      "html": "<a class=\"ds-nav-link\" href=\"#work\">Work</a>",
+      "css": ".ds-nav-link { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; color: #17181a; text-decoration: none; } .ds-nav-link:hover, .ds-nav-link:focus-visible { text-decoration: underline 2px #d6291a; text-underline-offset: 0.3em; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Proof Sheet",
+    "overview": "This system reads as a printing-house press-proof: a sheet where every claim is checked against a physical mark before it's allowed to stand. Bone paper and near-black proof ink carry the whole page; one saturated red is reserved entirely for the moment something is being verified, corrected, or acted on. Nothing on the page is decorative for its own sake — the registration crosses close every section, the trim marks frame every reproduced screenshot, the ledger tables carry the site's actual claims with dates and commands. The system was chosen by a resonance-ordered concept roll (form: The Proof Sheet, seed key bb5ba904) and built code-led, with no comp; a plain \"fd.\" wordmark with a red dot was kept for the masthead after three cross-based logomark alternatives were explicitly tried and rejected — the system favors restraint over a cleverer, less legible mark.",
+    "keyCharacteristics": [
+      "Flat ink-on-paper at rest; the only depth device is a hairline rule or a trim-mark frame, never a shadow.",
+      "Sharp corners everywhere (border-radius: 0) — buttons, inputs, and image frames all meet at right angles.",
+      "One accent color, reserved for state and correction, never used as general decoration.",
+      "A strict baseline grid (--grid: 0.375rem); line-heights snap up to it via CSS round().",
+      "Theme and section-to-section navigation change state instantly — no eased color or layout transition."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Correction Ink appears only where something is being verified, corrected, marked with a state, or focused/hovered — never as a background fill, a decorative rule, or a headline color.", "section": "colors" },
+      { "name": "The Labeled-Size Rule", "body": "A specimen heading prints its own live-measured point size in the margin, read off the rendered font-size at runtime rather than hand-typed — the label can never drift out of sync with the type.", "section": "typography" },
+      { "name": "The No-Shadow Rule", "body": "Depth reads through rules and trim marks, never a cast shadow — a shadow would break the flat \"printed sheet\" premise the whole system stands on.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Correction Ink to state, correction, and focus/hover moments — never a background fill or a headline color (The One Accent Rule).",
+      "Do use square corners everywhere; a rounded corner anywhere in this system reads as a foreign component.",
+      "Do use a rule or a trim-mark frame for depth; never a box-shadow (The No-Shadow Rule).",
+      "Do cut state changes (theme, active nav) instantly; an eased color transition contradicts the \"instant proof mark\" premise.",
+      "Do reuse the ledger table (claim / how checked / state) for any future page that needs to back a claim with evidence, rather than inventing a new proof device."
+    ],
+    "donts": [
+      "Don't draw a tilted double-rule \"rubber stamp\" shape around a state word — this was tried and rejected; state is marked with plain brackets only.",
+      "Don't add a cross-monogram or any icon-based logomark to the masthead — three alternatives were tried and rejected in favor of the plain \"fd.\" + dot mark.",
+      "Don't introduce a second accent color; the system's whole restraint argument rests on there being exactly one.",
+      "Don't use prefers-reduced-motion as an excuse to drop a state entirely — the stamp badge still animates under reduced motion, just as a plain fade instead of a translate+fade."
+    ]
+  }
+}

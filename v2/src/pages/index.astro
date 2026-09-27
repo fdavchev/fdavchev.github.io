@@ -1,0 +1,340 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import ProofSection from '../components/ProofSection.astro';
+import Specimen from '../components/Specimen.astro';
+import StampBadge from '../components/StampBadge.astro';
+import portrait from '../assets/filip.jpg';
+import { getProjects, projectHref } from '../lib/projects';
+import { withBase } from '../lib/paths';
+
+const projects = await getProjects();
+const [firstProject] = projects;
+if (!firstProject) {
+  throw new Error('No projects in src/content/projects: the work list and "Read the proof" need at least one.');
+}
+
+const earlierWork = [
+  {
+    title: 'Wanderlust',
+    description: 'PHP/MySQL travel social platform with a Leaflet map, group project',
+    href: 'https://github.com/fdavchev/wanderlust',
+  },
+  { title: 'TouristSpotsMK', description: 'Android + Firebase', href: 'https://github.com/fdavchev/TouristspotsinMK' },
+  {
+    title: 'House Price Prediction',
+    description: 'Python, scikit-learn regression',
+    href: 'https://github.com/fdavchev/House-price-prediction',
+  },
+];
+
+const duties = [
+  'Built REST API endpoints in C#/ASP.NET for a logistics platform, working mostly on the shipment status system and its reports, serving a web dashboard, a Flutter app, and a PWA.',
+  'Optimised SQL Server queries and indexes to keep response times steady as shipment volume grew.',
+  'Fixes bugs and reviews code across the team’s work, including fixes on the PWA client.',
+  'Works directly with clients in meetings, not just with the engineering team.',
+];
+
+const channels = [
+  { label: 'Email', value: 'davchevfilip31@gmail.com', href: 'mailto:davchevfilip31@gmail.com' },
+  { label: 'GitHub', value: 'github.com/fdavchev', href: 'https://github.com/fdavchev' },
+  { label: 'LinkedIn', value: 'linkedin.com/in/filip-davchev', href: 'https://www.linkedin.com/in/filip-davchev/' },
+];
+---
+
+<Base
+  title="Filip Davchev, Software Engineer"
+  description="Filip Davchev, Computer Science graduate and Engineer Intern at Imbrium Tech. Four case studies with their tests and checks shown: DocuMind AI, Book Scanner, Classroom Presence System and Kvit."
+>
+  <section class="hero">
+    <Specimen as="h1" level="display-1">Filip Davchev</Specimen>
+    <Specimen as="p" level="display-2">Software Engineer</Specimen>
+    <div class="hero__status">
+      <StampBadge label="Approved for production" data-strike />
+      <p class="type-data hero__status-text">Engineer Intern at Imbrium Tech, Jul-Oct 2026</p>
+    </div>
+    <p class="type-lead hero__thesis">
+      Real projects, checked before they’re claimed. Local AI, an offline app with a measured accuracy benchmark, and
+      an NFC attendance system used by a real classroom.
+    </p>
+    <div class="hero__actions">
+      <a class="button button--primary" href={projectHref(firstProject)}>Read the proof</a>
+      <a class="button button--secondary" href="#contact">Get in touch</a>
+    </div>
+  </section>
+
+  <ProofSection id="work" title="Work">
+    <ol class="work-list">
+      {projects.map((project) => <ProjectRow project={project} />)}
+    </ol>
+    <div class="earlier-work">
+      <h3 class="type-label">Earlier work</h3>
+      <ul>
+        {
+          earlierWork.map((item) => (
+            <li>
+              <p>
+                <a href={item.href}>{item.title}</a>
+              </p>
+              <span>{item.description}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </ProofSection>
+
+  <ProofSection id="experience" title="Experience">
+    <article class="job">
+      <div class="job__meta type-data">
+        <p>31 Jul - 31 Oct 2026</p>
+        <p>Shtip, on-site</p>
+      </div>
+      <div class="job__body">
+        <h3 class="type-display-4">Engineer Intern, Imbrium Tech</h3>
+        <ul class="job__duties">
+          {duties.map((duty) => <li>{duty}</li>)}
+        </ul>
+        <p class="type-data job__stack">C#/.NET, ASP.NET, REST APIs, SQL Server, Flutter, Azure DevOps, Git</p>
+      </div>
+    </article>
+  </ProofSection>
+
+  <ProofSection id="about" title="About">
+    <div class="about">
+      <div class="about__photo trim-marks">
+        <div class="about__crop">
+          <Image
+            src={portrait}
+            alt="Filip in a car, smiling and giving a thumbs up, with a lake through the window behind him."
+            widths={[480, 960]}
+            sizes="27rem"
+          />
+        </div>
+      </div>
+      <p class="type-lead about__text">
+        Computer Science graduate (BSc, University “Goce Delchev”, Shtip, Fall 2026), based in Kavadarci, North
+        Macedonia. Comfortable across the stack (Python, C#, Kotlin, TypeScript) with a particular pull toward
+        local-first AI: running language models on your own machine instead of someone else’s API. Outside of code:
+        photography, hiking, basketball.
+      </p>
+    </div>
+  </ProofSection>
+
+  <ProofSection id="contact" title="Get in touch">
+    <div class="contact">
+      <div class="contact__details">
+        <p class="type-lead">Open to junior and graduate roles in mobile (Flutter), .NET backend, and applied AI.</p>
+        <dl class="contact__channels">
+          {
+            channels.map((channel) => (
+              <div>
+                <dt class="type-label">{channel.label}</dt>
+                <dd>
+                  <a href={channel.href}>{channel.value}</a>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+        <div class="contact__cv">
+          <a class="button button--secondary" href={withBase('Filip-Davchev-CV.pdf')}>CV in English (PDF)</a>
+          <p class="contact__cv-secondary">
+            <a href={withBase('Filip-Davchev-CV-MK.pdf')} hreflang="mk">Macedonian version (PDF)</a>
+          </p>
+        </div>
+      </div>
+      <ContactForm />
+    </div>
+  </ProofSection>
+</Base>
+
+<style>
+  .hero {
+    padding-block: var(--space-3) var(--space-4);
+  }
+
+  .hero__status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  .hero__status-text {
+    color: var(--ink);
+  }
+
+  .hero__thesis {
+    margin-top: var(--space-2);
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+  }
+
+  .work-list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .earlier-work {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: var(--space-1) var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--rule);
+  }
+
+  .earlier-work h3 {
+    padding-top: var(--grid);
+  }
+
+  .earlier-work ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-1) var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Each link sits inside a <p>, not straight in the grid, so its line is only as wide as its text. */
+  .earlier-work li {
+    display: grid;
+    gap: var(--grid);
+  }
+
+  .earlier-work a {
+    font-weight: 500;
+  }
+
+  .earlier-work span {
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+  }
+
+  .job {
+    display: grid;
+    grid-template-columns: 12rem minmax(0, 1fr);
+    gap: var(--space-1) var(--space-4);
+  }
+
+  .job__meta {
+    padding-top: var(--grid);
+  }
+
+  .job__duties {
+    max-width: var(--measure);
+    margin-top: var(--space-2);
+    padding-left: 1.25rem;
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .job__duties li::marker {
+    color: var(--ink-muted);
+  }
+
+  .job__stack {
+    margin-top: var(--space-2);
+  }
+
+  .about {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr);
+    gap: var(--space-2) var(--space-4);
+    align-items: start;
+  }
+
+  /*
+    A tight crop of the original photo: face and thumbs-up, lake behind.
+    Circular, like a proof sheet's die-cut sample inside its trim-marked sheet.
+    Margins in percent resolve against the frame's width, so the crop holds at any size.
+  */
+  .about__crop {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .about__crop img {
+    /* source photo is 1200x1600; this frames the 900x900 square from
+       (250,300) to (1150,1200). Wider than the tightest possible crop on
+       purpose: the circle mask clips corners, and the thumbs-up sits close
+       to one, so it needs this much breathing room to survive the circle. */
+    width: 133.3%;
+    max-width: none;
+    margin-left: -27.8%;
+    margin-top: -33.3%;
+  }
+
+  .about__text {
+    max-width: 56ch;
+  }
+
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: var(--space-4) var(--space-6);
+    align-items: start;
+  }
+
+  .contact__channels {
+    display: grid;
+    gap: var(--space-1);
+    margin-top: var(--space-3);
+  }
+
+  .contact__channels > div {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-1);
+  }
+
+  .contact__channels dd {
+    overflow-wrap: anywhere;
+  }
+
+  .contact__cv {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    margin-top: var(--space-3);
+  }
+
+  /* Wraps the link, so the flex layout sizes this box and the link's line stays as wide as its text. */
+  .contact__cv-secondary {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 56rem) {
+    .earlier-work,
+    .job,
+    .contact {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .earlier-work ul {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about__photo {
+      max-width: 16rem;
+    }
+  }
+</style>

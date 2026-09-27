@@ -1,0 +1,30 @@
+---
+/**
+ * A printer's registration cross. Marks where a section of the sheet starts
+ * and ends; purely presentational, so hidden from assistive technology.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg
+  class:list={['registration-mark', className]}
+  viewBox="0 0 20 20"
+  width="20"
+  height="20"
+  aria-hidden="true"
+  focusable="false"
+>
+  <circle cx="10" cy="10" r="5" fill="none" stroke="currentColor" stroke-width="1"></circle>
+  <path d="M10 0V20M0 10H20" stroke="currentColor" stroke-width="1"></path>
+</svg>
+
+<style>
+  .registration-mark {
+    flex: none;
+    color: var(--ink);
+  }
+</style>

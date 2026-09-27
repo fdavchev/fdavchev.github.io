@@ -1,0 +1,69 @@
+---
+/**
+ * One line of a type specimen: the text, with its rendered size printed in the
+ * margin the way specimen sheets label each size. The size is measured from the
+ * live page, not written in by hand, so it stays true at every screen width.
+ */
+interface Props {
+  as: 'h1' | 'p';
+  level: 'display-1' | 'display-2';
+}
+
+const { as: Tag, level } = Astro.props;
+---
+
+<div class="specimen">
+  <span class="specimen__size type-data" data-specimen-size aria-hidden="true"></span>
+  <Tag class:list={['specimen__text', `type-${level}`]}><slot /></Tag>
+</div>
+
+<script>
+  const pointsPerPixel = 0.75;
+
+  function labelSpecimenSizes() {
+    for (const label of document.querySelectorAll<HTMLElement>('[data-specimen-size]')) {
+      const text = label.nextElementSibling;
+      if (!(text instanceof HTMLElement)) {
+        throw new Error('Specimen size label is not followed by its text element.');
+      }
+      const points = Number.parseFloat(getComputedStyle(text).fontSize) * pointsPerPixel;
+      label.textContent = `${Math.round(points)} pt`;
+    }
+  }
+
+  document.addEventListener('astro:page-load', labelSpecimenSizes);
+  window.addEventListener('resize', labelSpecimenSizes, { passive: true });
+</script>
+
+<style>
+  .specimen {
+    --label-width: 3.5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: var(--space-2);
+  }
+
+  .specimen__size {
+    color: var(--ink-muted);
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    white-space: nowrap;
+  }
+
+  .specimen__text {
+    min-width: 0;
+  }
+
+  /* Wide sheets have a real margin: the size hangs in it, level with the line's baseline. */
+  @media (min-width: 84rem) {
+    .specimen {
+      grid-template-columns: var(--label-width) minmax(0, 1fr);
+      margin-left: calc(-1 * (var(--label-width) + var(--space-2)));
+    }
+
+    .specimen__size {
+      text-align: right;
+    }
+  }
+</style>

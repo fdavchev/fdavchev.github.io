@@ -1,0 +1,79 @@
+---
+/**
+ * A state mark: "Shipped", "In progress", "Approved for production".
+ * Purely typographic, like a margin annotation: square brackets around the
+ * word, no drawn shape. `open` sets the brackets and word to muted ink
+ * instead of proof-red, for unfinished work.
+ * Extra attributes (e.g. `data-strike` for the arrival animation) pass through.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'span'> {
+  label: string;
+  note?: string;
+  open?: boolean;
+}
+
+const { label, note, open = false, class: className, ...rest } = Astro.props;
+---
+
+<span class:list={['stamp', { 'stamp--open': open }, className]} {...rest}>
+  <span class="stamp__bracket" aria-hidden="true">[</span>
+  <span class="stamp__label">{label}</span>
+  <span class="stamp__bracket" aria-hidden="true">]</span>
+  {note && <span class="stamp__note">{note}</span>}
+</span>
+
+<style>
+  .stamp {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    column-gap: 0.5em;
+  }
+
+  .stamp__bracket {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: var(--ink-muted);
+  }
+
+  .stamp__label {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.125rem;
+    white-space: nowrap;
+    color: var(--red-ink);
+  }
+
+  .stamp--open .stamp__label {
+    color: var(--ink-muted);
+    font-style: italic;
+  }
+
+  .stamp__note {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.125rem;
+    color: var(--ink-muted);
+  }
+
+  /* The stamp settles in on arrival. The keyframes live in global.css, shared with the contact form's messages. */
+  @media (prefers-reduced-motion: no-preference) {
+    .stamp[data-strike] {
+      animation: var(--motion-settle);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stamp[data-strike] {
+      animation: var(--motion-appear);
+    }
+  }
+</style>

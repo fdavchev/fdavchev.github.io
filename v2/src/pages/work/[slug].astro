@@ -1,0 +1,259 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ClassroomFlow from '../../components/ClassroomFlow.astro';
+import ProofFigure from '../../components/ProofFigure.astro';
+import ProofLedger from '../../components/ProofLedger.astro';
+import ProofSection from '../../components/ProofSection.astro';
+import Specimen from '../../components/Specimen.astro';
+import StampBadge from '../../components/StampBadge.astro';
+import { getProjects, projectHref, stateLabel, type Project } from '../../lib/projects';
+import { sectionHref } from '../../lib/paths';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, index) => ({
+    params: { slug: project.id },
+    props: { project, next: projects[(index + 1) % projects.length] },
+  }));
+}
+
+interface Props {
+  project: Project;
+  next: Project;
+}
+
+const { project, next } = Astro.props;
+const { Content } = await render(project);
+const { title, thesis, state, stateNote, stack, team, links, proofs, figures, diagram } = project.data;
+const leadFigures = figures.filter((figure) => figure.role === 'lead');
+const sequenceFigures = figures.filter((figure) => figure.role === 'sequence');
+const calloutFigures = figures.filter((figure) => figure.role === 'callout');
+const leadSizes = leadFigures.length === 1 ? '(min-width: 76rem) 70rem, 94vw' : '(min-width: 48rem) 36rem, 94vw';
+---
+
+<Base title={`${title}, a case study by Filip Davchev`} description={thesis}>
+  <article>
+    <header class="case-header">
+      <p class="case-header__back-row type-data">
+        <a class="case-header__back" href={sectionHref('work', Astro.url.pathname)}>All work</a>
+      </p>
+      <div class="case-header__title">
+        <Specimen as="h1" level="display-1">{title}</Specimen>
+      </div>
+      <div class="case-header__stamp">
+        <StampBadge label={stateLabel[state]} note={stateNote} open={state === 'in-progress'} data-strike />
+      </div>
+      <p class="type-lead case-header__thesis">{thesis}</p>
+      <dl class="case-facts">
+        <div>
+          <dt class="type-label">Stack</dt>
+          <dd class="type-data">{stack.join(', ')}</dd>
+        </div>
+        {
+          team && (
+            <div>
+              <dt class="type-label">Team</dt>
+              <dd>{team}</dd>
+            </div>
+          )
+        }
+        <div>
+          <dt class="type-label">Links</dt>
+          <dd>
+            <ul>
+              {
+                links.map((link) => (
+                  <li>
+                    <a href={link.href}>{link.label}</a>
+                  </li>
+                ))
+              }
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </header>
+
+    {
+      leadFigures.length > 0 && (
+        <div class:list={['case-leads', { 'case-leads--pair': leadFigures.length > 1 }]}>
+          {leadFigures.map((figure, index) => (
+            <ProofFigure
+              src={figure.src}
+              alt={figure.alt}
+              caption={figure.caption}
+              sizes={leadSizes}
+              priority={index === 0}
+            />
+          ))}
+        </div>
+      )
+    }
+
+    <ProofSection id="notes">
+      <div class:list={['case-notes', { 'case-notes--with-diagram': diagram }]}>
+        <div class="prose">
+          <Content />
+        </div>
+        {diagram === 'classroom-flow' && <ClassroomFlow />}
+      </div>
+    </ProofSection>
+
+    <ProofSection id="proof" title="Proof">
+      <ProofLedger proofs={proofs} />
+    </ProofSection>
+
+    {
+      (sequenceFigures.length > 0 || calloutFigures.length > 0) && (
+        <ProofSection id="screens" title="Screens">
+          {sequenceFigures.length > 0 && (
+            <div class="contact-sheet">
+              {sequenceFigures.map((figure) => (
+                <ProofFigure
+                  src={figure.src}
+                  alt={figure.alt}
+                  caption={figure.caption}
+                  sizes="(min-width: 76rem) 23rem, (min-width: 40rem) 46vw, 94vw"
+                />
+              ))}
+            </div>
+          )}
+          {calloutFigures.map((figure, index) => (
+            <aside class="callout" aria-labelledby={`callout-heading-${index}`}>
+              <h3 id={`callout-heading-${index}`} class="type-display-4">
+                When it isn’t sure
+              </h3>
+              <ProofFigure
+                src={figure.src}
+                alt={figure.alt}
+                caption={figure.caption}
+                sizes="(min-width: 48rem) 30rem, 94vw"
+              />
+            </aside>
+          ))}
+        </ProofSection>
+      )
+    }
+
+    <nav class="case-next" aria-label="Next case study">
+      <span class="type-label">Next case study</span>
+      <a class="type-display-3" href={projectHref(next)}>{next.data.title}</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .case-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-3) var(--space-4);
+  }
+
+  /* The row takes the grid placement, so the link inside stays inline and its line only as wide as its text. */
+  .case-header__back-row {
+    grid-column: 1 / -1;
+  }
+
+  .case-header__title {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .case-header__stamp {
+    grid-column: 2;
+    align-self: end;
+    padding-bottom: var(--space-1);
+  }
+
+  .case-header__thesis {
+    grid-column: 1;
+    max-width: 50ch;
+  }
+
+  .case-facts {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-1);
+  }
+
+  .case-facts dd {
+    margin-top: var(--grid);
+  }
+
+  .case-facts ul {
+    display: grid;
+    gap: var(--grid);
+    padding: 0;
+    list-style: none;
+  }
+
+  .case-leads {
+    display: grid;
+    gap: var(--space-4);
+    padding-bottom: var(--space-6);
+  }
+
+  .case-leads--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-notes--with-diagram {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    gap: var(--space-4) var(--space-6);
+    align-items: start;
+  }
+
+  .contact-sheet {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: var(--space-4) var(--space-3);
+  }
+
+  .callout {
+    display: grid;
+    grid-template-columns: minmax(0, 12rem) minmax(0, 32rem);
+    gap: var(--space-1) var(--space-4);
+    margin-top: var(--space-6);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--rule);
+  }
+
+  .case-next {
+    display: grid;
+    gap: var(--grid);
+    padding-block: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--ink);
+  }
+
+  .case-next a {
+    --line-rest: 2px;
+    justify-self: start;
+  }
+
+  @media (max-width: 56rem) {
+    .case-notes--with-diagram,
+    .callout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .case-header {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .case-header__stamp {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .case-leads--pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

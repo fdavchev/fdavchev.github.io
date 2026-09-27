@@ -1,0 +1,87 @@
+---
+/** The top band of every page: a small "fd." home mark, section links, theme toggle. */
+import ThemeToggle from './ThemeToggle.astro';
+import { homePath, sectionHref } from '../lib/paths';
+
+const links = [
+  { label: 'Work', sectionId: 'work' },
+  { label: 'Experience', sectionId: 'experience' },
+  { label: 'About', sectionId: 'about' },
+  { label: 'Get in touch', sectionId: 'contact' },
+];
+---
+
+<header class="masthead sheet">
+  <a class="masthead__home" href={homePath} aria-label="Filip Davchev — home">
+    fd<span class="masthead__dot" aria-hidden="true">.</span>
+  </a>
+  <nav class="masthead__nav" aria-label="Sections">
+    <ul>
+      {
+        links.map((link) => (
+          <li>
+            <a href={sectionHref(link.sectionId, Astro.url.pathname)}>{link.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+  <ThemeToggle />
+</header>
+
+<style>
+  .masthead {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    padding-block: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.5rem;
+  }
+
+  .masthead__home {
+    display: inline-flex;
+    align-items: baseline;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: none;
+  }
+
+  .masthead__dot {
+    color: var(--red);
+  }
+
+  .masthead__nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0 var(--space-2);
+    padding: 0;
+    list-style: none;
+  }
+
+  /* No line at rest; the red one grows in on hover (global.css), dropped by the padding to where the old underline sat. */
+  .masthead__nav a {
+    --line-rest: 0px;
+    padding-bottom: 0.15em;
+  }
+
+  /* Phones: name and toggle share the first line, the section links get their own. */
+  @media (max-width: 40rem) {
+    .masthead {
+      grid-template-columns: 1fr auto;
+    }
+
+    .masthead__nav {
+      grid-row: 2;
+      grid-column: 1 / -1;
+    }
+
+    .masthead__nav ul {
+      justify-content: flex-start;
+      gap: 0 var(--space-2);
+    }
+  }
+</style>

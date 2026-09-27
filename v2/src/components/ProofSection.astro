@@ -1,0 +1,35 @@
+---
+/**
+ * A section of the sheet: a rule across the top with a registration cross at
+ * each end, marking where the section starts. `title` becomes its h2; leave it
+ * out when the content brings its own headings.
+ */
+import RegistrationMark from './RegistrationMark.astro';
+
+interface Props {
+  id: string;
+  title?: string;
+}
+
+const { id, title } = Astro.props;
+const headingId = `${id}-heading`;
+---
+
+<section id={id} class="proof-section" aria-labelledby={title ? headingId : undefined}>
+  <RegistrationMark class="registration-mark--start" />
+  <RegistrationMark class="registration-mark--end" />
+  {
+    title && (
+      <h2 id={headingId} class="proof-section__heading type-display-3">
+        {title}
+      </h2>
+    )
+  }
+  <slot />
+</section>
+
+<style>
+  .proof-section__heading {
+    margin-bottom: var(--space-3);
+  }
+</style>

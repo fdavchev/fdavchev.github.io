@@ -1,0 +1,142 @@
+---
+/**
+ * Every page's shell: meta and Open Graph tags, the Person JSON-LD, the
+ * no-flash theme script, the ClientRouter, the top band and the colophon.
+ */
+import { ClientRouter } from 'astro:transitions';
+import '@fontsource/libre-caslon-display/400.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import { homePath, withBase } from '../lib/paths';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+// `format: 'file'` makes Astro.url.pathname resolve to the built .html file
+// (e.g. '/v2/work/kvit.html'); strip that back to the clean URL GitHub Pages
+// actually serves ('/v2/work/kvit'), which is what a canonical/og:url must be.
+const canonicalPath = Astro.url.pathname.replace(/\/index\.html$/, '').replace(/\.html$/, '') || '/';
+const canonicalUrl = new URL(canonicalPath, Astro.site);
+const homeUrl = new URL(homePath, Astro.site);
+
+// Same facts as v1's JSON-LD, brought up to date: graduated, now interning at Imbrium Tech.
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Filip Davchev',
+  url: homeUrl.href,
+  jobTitle: 'Engineer Intern',
+  worksFor: { '@type': 'Organization', name: 'Imbrium Tech' },
+  email: 'mailto:davchevfilip31@gmail.com',
+  address: { '@type': 'PostalAddress', addressLocality: 'Kavadarci', addressCountry: 'MK' },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'University Goce Delchev, Shtip' },
+  knowsAbout: [
+    'Python',
+    'C#',
+    '.NET',
+    'ASP.NET',
+    'SQL Server',
+    'Kotlin',
+    'TypeScript',
+    'React',
+    'Flutter',
+    'RAG',
+    'LangChain',
+    'Ollama',
+  ],
+  sameAs: ['https://github.com/fdavchev', 'https://www.linkedin.com/in/filip-davchev/'],
+};
+---
+
+<!doctype html>
+<html lang="en" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content="Filip Davchev" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="theme-color" content="#edeae2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17181a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href={withBase('favicon.svg')} type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <script is:inline>
+      // Set the theme before first paint (same approach and storage key as v1).
+      // ClientRouter copies the incoming page's <html> attributes on every
+      // navigation, so the theme is set on the incoming document before the
+      // swap: the page is never styled, even for a moment, in the other theme.
+      (function () {
+        function preferredTheme() {
+          try {
+            var stored = localStorage.getItem('theme');
+            if (stored === 'light' || stored === 'dark') return stored;
+          } catch (error) {
+            // Storage blocked (e.g. some private modes): the OS preference below is the intended answer.
+          }
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', preferredTheme());
+        document.addEventListener('astro:before-swap', function (event) {
+          event.newDocument.documentElement.setAttribute('data-theme', preferredTheme());
+        });
+      })();
+    </script>
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(person)} />
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" class="sheet">
+      <slot />
+    </main>
+    <footer class="colophon sheet">
+      <p>
+        Filip Davchev, {new Date().getFullYear()}. Set in Libre Caslon Display, IBM Plex Sans and IBM Plex Mono.
+      </p>
+      <p>
+        <span><a href="https://github.com/fdavchev">GitHub</a></span>
+        <span><a href="https://www.linkedin.com/in/filip-davchev/">LinkedIn</a></span>
+        <span><a href="mailto:davchevfilip31@gmail.com">Email</a></span>
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-2);
+    padding-block: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--rule);
+    color: var(--ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5rem;
+  }
+
+  /* Each link is wrapped in a span, so the flex items are the spans and the links stay inline, their line under the text. */
+  .colophon p:last-child {
+    display: flex;
+    gap: var(--space-2);
+  }
+</style>

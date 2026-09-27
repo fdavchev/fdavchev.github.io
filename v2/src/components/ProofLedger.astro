@@ -1,0 +1,165 @@
+---
+/**
+ * The proof ledger of a case study: each claim, how it was checked, and its
+ * state. Verified claims carry the date they were re-run; the rest say Open.
+ */
+import type { Project } from '../lib/projects';
+
+interface Props {
+  proofs: Project['data']['proofs'];
+}
+
+const { proofs } = Astro.props;
+const shortMonth = new Intl.DateTimeFormat('en-US', { month: 'short', timeZone: 'UTC' });
+
+/** "27 Sep 2026". en-GB would print "Sept", which does not match the rest of the sheet. */
+function formatChecked(date: Date): string {
+  return `${date.getUTCDate()} ${shortMonth.format(date)} ${date.getUTCFullYear()}`;
+}
+---
+
+<table class="ledger">
+  <caption class="visually-hidden">Each claim on this page and how it was checked</caption>
+  <thead>
+    <tr>
+      <th scope="col" class="type-label">Claim</th>
+      <th scope="col" class="type-label">How it was checked</th>
+      <th scope="col" class="type-label">State</th>
+    </tr>
+  </thead>
+  <tbody>
+    {
+      proofs.map((proof) => (
+        <tr>
+          <th scope="row" class="ledger__claim">
+            {proof.claim}
+            {proof.note && <span class="ledger__note">{proof.note}</span>}
+          </th>
+          <td>{proof.command ? <code>{proof.command}</code> : <span class="ledger__source">{proof.source}</span>}</td>
+          <td class="ledger__state">
+            {proof.status === 'verified' && proof.checked ? (
+              <span class="ledger__verified">
+                Verified <span class="ledger__date">{formatChecked(proof.checked)}</span>
+              </span>
+            ) : (
+              <span class="ledger__open">Open</span>
+            )}
+          </td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>
+
+<style>
+  .ledger {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: var(--space-1) var(--space-2) var(--space-1) 0;
+    vertical-align: baseline;
+  }
+
+  th:last-child,
+  td:last-child {
+    padding-right: 0;
+  }
+
+  thead th {
+    padding-bottom: var(--grid);
+    border-bottom: 1px solid var(--ink);
+  }
+
+  tbody tr + tr > * {
+    border-top: 1px solid var(--rule);
+  }
+
+  .ledger__claim {
+    font-weight: 500;
+    width: 45%;
+  }
+
+  .ledger__note {
+    display: block;
+    margin-top: var(--grid);
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5rem;
+  }
+
+  code {
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .ledger__source {
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+  }
+
+  .ledger__state {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--red-ink);
+    white-space: nowrap;
+  }
+
+  .ledger__date {
+    display: block;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  /* Phones: each row stacks, so the claim keeps a readable width. */
+  @media (max-width: 40rem) {
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--space-2);
+      padding-block: var(--space-1);
+    }
+
+    tbody tr + tr {
+      border-top: 1px solid var(--rule);
+    }
+
+    tbody tr + tr > * {
+      border-top: 0;
+    }
+
+    th,
+    td {
+      padding: 0;
+    }
+
+    .ledger__claim {
+      grid-column: 1 / -1;
+      width: auto;
+    }
+
+    tbody td:nth-child(2) {
+      padding-top: var(--grid);
+    }
+
+    .ledger__state {
+      padding-top: var(--grid);
+      text-align: right;
+    }
+  }
+</style>

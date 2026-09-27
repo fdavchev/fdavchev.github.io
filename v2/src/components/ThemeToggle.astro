@@ -1,0 +1,79 @@
+---
+/**
+ * Light/dark switch. The visible word is the current theme, chosen by CSS from
+ * html[data-theme] so it is right before any script runs. The choice persists
+ * to localStorage under the same 'theme' key v1 uses, so both sites agree.
+ */
+---
+
+<button type="button" class="theme-toggle" data-theme-toggle>
+  Theme: <span class="theme-toggle__when-light">Light</span><span class="theme-toggle__when-dark">Dark</span>
+</button>
+
+<script>
+  // Delegated once at module load, so it keeps working after ClientRouter swaps the page.
+  document.addEventListener('click', (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest('[data-theme-toggle]')) return;
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    // Theme changes cut instantly: suspend every transition (global.css) until
+    // the new theme has been styled and painted, two frames later.
+    root.dataset.themeSwitching = '';
+    root.dataset.theme = next;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        delete root.dataset.themeSwitching;
+      });
+    });
+    try {
+      localStorage.setItem('theme', next);
+    } catch (error) {
+      console.warn('Theme switched but not saved: localStorage is unavailable.', error);
+    }
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    min-height: 2.25rem;
+    padding: 0 var(--space-1);
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .theme-toggle:active {
+    translate: 0 1px;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .theme-toggle:hover {
+      border-color: var(--ink);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-toggle {
+      transition: border-color var(--dur-feedback) linear;
+    }
+  }
+
+  /* Without JavaScript there is no data-theme and nothing to toggle. */
+  :global(:root:not([data-theme])) .theme-toggle {
+    display: none;
+  }
+
+  .theme-toggle__when-dark,
+  :global([data-theme='dark']) .theme-toggle__when-light {
+    display: none;
+  }
+
+  :global([data-theme='dark']) .theme-toggle__when-dark {
+    display: inline;
+  }
+</style>

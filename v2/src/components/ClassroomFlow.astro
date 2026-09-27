@@ -1,0 +1,119 @@
+---
+/**
+ * The Classroom Presence attendance flow as a labelled diagram. It stands in
+ * for phone screenshots, which need NFC hardware to capture (docs/BACKLOG.md).
+ */
+const nodes = [
+  { title: 'Student’s phone', detail: 'Android app, Kotlin' },
+  { title: 'Teacher’s device', detail: 'Receives the tap' },
+  { title: 'FastAPI backend', detail: 'Records the attendance' },
+  { title: 'Firestore', detail: 'Stores the record' },
+  { title: 'Teacher’s dashboard', detail: 'Updates in real time' },
+];
+const edgeLabels = ['NFC tap', '', '', ''];
+
+const nodeHeight = 64;
+const edgeLength = 44;
+const width = 340;
+const nodeX = 20;
+const nodeWidth = width - nodeX * 2;
+const centerX = width / 2;
+const top = (index: number) => 4 + index * (nodeHeight + edgeLength);
+const height = top(nodes.length - 1) + nodeHeight + 4;
+---
+
+<figure class="flow">
+  <div class="trim-marks">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-labelledby="flow-title flow-desc"
+      class="flow__diagram"
+    >
+      <title id="flow-title">Classroom Presence attendance flow</title>
+      <desc id="flow-desc">
+        {nodes.map((node) => node.title).join(', then ')}. The first step is an NFC tap.
+      </desc>
+      <defs>
+        <marker id="flow-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+          <path d="M0 0L10 5L0 10" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+        </marker>
+      </defs>
+      {
+        nodes.map((node, index) => (
+          <g>
+            <rect x={nodeX} y={top(index)} width={nodeWidth} height={nodeHeight} fill="none" stroke="currentColor" stroke-width="1" />
+            <text x={nodeX + 16} y={top(index) + 27} class="flow__title">
+              {node.title}
+            </text>
+            <text x={nodeX + 16} y={top(index) + 47} class="flow__detail">
+              {node.detail}
+            </text>
+          </g>
+        ))
+      }
+      {
+        edgeLabels.map((label, index) => (
+          <g>
+            <line
+              x1={centerX}
+              y1={top(index) + nodeHeight}
+              x2={centerX}
+              y2={top(index + 1) - 2}
+              stroke="currentColor"
+              stroke-width="1"
+              marker-end="url(#flow-arrow)"
+            />
+            {label && (
+              <text x={centerX + 12} y={top(index) + nodeHeight + edgeLength / 2 + 4} class="flow__edge">
+                {label}
+              </text>
+            )}
+          </g>
+        ))
+      }
+    </svg>
+  </div>
+  <figcaption>
+    The attendance flow, drawn from the system’s architecture. There are no phone screenshots yet: capturing
+    them needs NFC hardware.
+  </figcaption>
+</figure>
+
+<style>
+  .flow {
+    max-width: 26rem;
+  }
+
+  .flow__diagram {
+    width: 100%;
+    color: var(--ink);
+  }
+
+  .flow__title {
+    fill: currentColor;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .flow__detail {
+    fill: var(--ink-soft);
+    font-family: var(--font-body);
+    font-size: 13px;
+  }
+
+  .flow__edge {
+    fill: currentColor;
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  figcaption {
+    margin-top: var(--grid);
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    text-wrap: pretty;
+  }
+</style>
